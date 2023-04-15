@@ -23,7 +23,7 @@ octokit.rest.pulls.listFiles({
             // example
             // +import { useAgent } from 'hooks';",
             if (line.startsWith('+import')) {
-                filesPathForGraph.add(normalize(getImportedFilePath(file.filename) + '.ts'))
+                filesPathForGraph.add(normalize(getImportedFilePath(file.filename)))
             }
         })
     })
@@ -37,9 +37,26 @@ function getImportedFilePath(mainFilePath) {
 
     if (match) {
         const importedPath = match[1];
-        return nodePath.join(nodePath.dirname(mainFilePath), importedPath);
+        const fileDirname = nodePath.dirname(nodePath.join(nodePath.dirname(mainFilePath), importedPath))
+
+        return readFileFromDir(fileDirname, removeRelativeSegments(importedPath))
     }
     return null;
 }
 
 const normalize = (path) => path.replace(/\\/g, '/')
+
+function readFileFromDir(dirName, filePattern) {
+    const files = fs.readdirSync(dirName);
+    const matchedFile = files.find(file => {
+        const filePath = nodePath.join(dirName, file);
+        const isFile = fs.statSync(filePath).isFile();
+        const matchesPattern = file.match(filePattern);
+        return isFile && matchesPattern;
+    });
+    return nodePath.join(dirName, matchedFile);
+}
+
+function removeRelativeSegments(filePath) {
+    return filePath.replace(/(\.|\/)\//g, '');
+}
