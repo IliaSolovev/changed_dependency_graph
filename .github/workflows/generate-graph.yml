@@ -18,7 +18,7 @@ jobs:
         run: npm install madge
 
       - name: Run generateGraph.js
-        run: node generateGraph.js
+        run: node ../scripts/generateGraph.js
         env:
           PULL_REQUEST_NUMBER: ${{ env.PULL_REQUEST_NUMBER }}
           ORG_NAME: ${{ env.ORG_NAME }}
