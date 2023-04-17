@@ -1,0 +1,25 @@
+name: generate-graph
+
+on:
+  pull_request:
+
+jobs:
+  generate-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Set environment variables
+        run: |
+          echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
+          echo "ORG_NAME=${{ github.repository_owner }}" >> $GITHUB_ENV
+          echo "PULL_REQUEST_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
+      - name: Install madge
+        run: npm install madge
+
+      - name: Run generateGraph.js
+        run: node generateGraph.js
+        env:
+          PULL_REQUEST_NUMBER: ${{ env.PULL_REQUEST_NUMBER }}
+          ORG_NAME: ${{ env.ORG_NAME }}
+          REPO_NAME: ${{ env.REPO_NAME }}
