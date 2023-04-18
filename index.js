@@ -1,6 +1,7 @@
 const {Octokit} = require("@octokit/rest");
 const nodePath = require('node:path');
 const fs = require('fs');
+const { exec } = require("child_process");
 const octokit = new Octokit();
 // https://github.com/IliaSolovev/changed_dependency_graph/pull/1
 
@@ -27,8 +28,19 @@ octokit.rest.pulls.listFiles({
             }
         })
     })
-    console.log(filesPathForGraph)
-    console.log(`madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`)
+    const command = `madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
+    console.log(command)
+    exec(command, (error, stdout, stderr) => {
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    });
 });
 
 function getImportedFilePath(mainFilePath, lineWithImport) {
