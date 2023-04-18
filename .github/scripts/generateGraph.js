@@ -39,7 +39,7 @@ octokit.rest.pulls.listFiles({
             }
         })
     })
-    const command = `madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
+    const command = `npx madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
     console.log(command)
     exec(command, (error, stdout, stderr) => {
         if (error) {

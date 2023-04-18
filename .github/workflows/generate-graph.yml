@@ -24,3 +24,8 @@ jobs:
           PULL_REQUEST_NUMBER: ${{ env.PULL_REQUEST_NUMBER }}
           REPO_NAME: ${{ env.REPO_NAME }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Archive result
+        uses: actions/upload-artifact@v2
+        with:
+          name: graph-svg
+          path: ./graph.svg
