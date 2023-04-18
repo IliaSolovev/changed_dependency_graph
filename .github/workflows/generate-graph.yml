@@ -22,5 +22,4 @@ jobs:
         run: node ./.github/scripts/generateGraph.js
         env:
           PULL_REQUEST_NUMBER: ${{ env.PULL_REQUEST_NUMBER }}
-          ORG_NAME: ${{ env.ORG_NAME }}
           REPO_NAME: ${{ env.REPO_NAME }}
