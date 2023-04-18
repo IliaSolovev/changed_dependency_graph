@@ -30,7 +30,7 @@ octokit.rest.pulls.listFiles({
             // example
             // +import { useAgent } from 'hooks';",
             if (line.startsWith('+import')) {
-                filesPathForGraph.add(normalize(getImportedFilePath(file.filename)))
+                filesPathForGraph.add(normalize(getImportedFilePath(file.filename, line)))
             }
         })
     })
@@ -38,9 +38,8 @@ octokit.rest.pulls.listFiles({
     console.log(`madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`)
 });
 
-function getImportedFilePath(mainFilePath) {
-    const content = fs.readFileSync(mainFilePath, 'utf-8');
-    const match = content.match(/import.*from\s*['"](.*)['"]/);
+function getImportedFilePath(mainFilePath, lineWithImport) {
+    const match = lineWithImport.match(/import.*from\s*['"](.*)['"]/);
 
     if (match) {
         const importedPath = match[1];
