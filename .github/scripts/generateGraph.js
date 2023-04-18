@@ -1,13 +1,16 @@
 const {Octokit} = require("@octokit/rest");
 const nodePath = require('node:path');
 const fs = require('fs');
-const octokit = new Octokit();
 // https://github.com/IliaSolovev/changed_dependency_graph/pull/1
 
 const pullRequestNumber = process.env.PULL_REQUEST_NUMBER;
 const repoName = process.env.REPO_NAME;
+const GITHUB_TOKEN = process.env.GITHUB_TOKEN;
 
 const [owner, repo] = repoName.split('/')
+const octokit = new Octokit({
+    auth: GITHUB_TOKEN
+});
 
 console.log(`Pull request number: ${pullRequestNumber}`);
 console.log(`Repository name: ${repoName}`);
