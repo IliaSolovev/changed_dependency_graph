@@ -1,19 +1,17 @@
-const {Octokit} = require("@octokit/rest");
-const nodePath = require('node:path');
-const fs = require('fs');
-const { exec } = require("child_process");
-const octokit = new Octokit();
-// https://github.com/IliaSolovev/changed_dependency_graph/pull/1
+import nodePath from 'path'
+const fs = require('fs')
 
-const root = 'src'
 const fileExtensions = ['.ts', '.tsx']
 
-octokit.rest.pulls.listFiles({
-    owner: 'IliaSolovev',
-    repo: 'changed_dependency_graph',
-    pull_number: '2',
-}).then(({data}) => {
-    const filesWithNecessaryExtensions = data.filter(({filename}) => fileExtensions.some((extension) => filename.endsWith(extension)))
+interface IFile {
+    filename: string
+    status: string
+    patch: string
+}
+
+const getChangedFileDependencies = (files: IFile[]) => {
+    const filesWithNecessaryExtensions = files.filter(({filename}) => fileExtensions.some((extension) => filename.endsWith(extension)))
+
     const filesPathForGraph = new Set();
     filesWithNecessaryExtensions.forEach((file) => {
         if (file.status === 'removed') return;
@@ -24,24 +22,15 @@ octokit.rest.pulls.listFiles({
             // example
             // +import { useAgent } from 'hooks';",
             if (line.startsWith('+import')) {
-                filesPathForGraph.add(normalize(getImportedFilePath(file.filename, line)))
+                const importFilepath = getImportedFilePath(file.filename, line)
+                if(importFilepath) {
+                    filesPathForGraph.add(normalize(importFilepath))
+                }
             }
         })
     })
-    const command = `madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
-    console.log(command)
-    exec(command, (error, stdout, stderr) => {
-        if (error) {
-            console.log(`error: ${error.message}`);
-            return;
-        }
-        if (stderr) {
-            console.log(`stderr: ${stderr}`);
-            return;
-        }
-        console.log(`stdout: ${stdout}`);
-    });
-});
+    return `madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
+}
 
 function getImportedFilePath(mainFilePath, lineWithImport) {
     const match = lineWithImport.match(/import.*from\s*['"](.*)['"]/);
@@ -55,9 +44,9 @@ function getImportedFilePath(mainFilePath, lineWithImport) {
     return null;
 }
 
-const normalize = (path) => path.replace(/\\/g, '/')
+const normalize = (path: string) => path.replace(/\\/g, '/')
 
-function readFileFromDir(dirName, filePattern) {
+function readFileFromDir(dirName: string, filePattern: string) {
     const files = fs.readdirSync(dirName);
     const matchedFile = files.find(file => {
         const filePath = nodePath.join(dirName, file);
@@ -65,9 +54,16 @@ function readFileFromDir(dirName, filePattern) {
         const matchesPattern = file.match(filePattern);
         return isFile && matchesPattern;
     });
+    if(!matchedFile) {
+        return null
+    }
     return nodePath.join(dirName, matchedFile);
 }
 
-function removeRelativeSegments(filePath) {
+function removeRelativeSegments(filePath: string) {
     return filePath.replace(/(\.|\/)\//g, '');
+}
+
+module.exports = {
+    getChangedFileDependencies
 }
