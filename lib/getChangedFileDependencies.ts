@@ -1,6 +1,6 @@
 import nodePath from 'path'
 const fs = require('fs')
-
+import dependencyTree from '../../node-dependency-tree'
 const fileExtensions = ['.ts', '.tsx']
 
 interface IFile {
@@ -17,6 +17,11 @@ const getChangedFileDependencies = (files: IFile[]) => {
         if (file.status === 'removed') return;
 
         filesPathForGraph.add(file.filename)
+        const res = dependencyTree({
+            filename: file.filename,
+            directory: nodePath.dirname(file.filename)
+        });
+        console.log(res, 'using depTree')
         // find added files in PR
         file.patch.split('\n').forEach((line) => {
             // example
