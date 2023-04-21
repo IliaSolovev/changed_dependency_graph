@@ -5,7 +5,7 @@ const {getChangedFileDependencies} = require('../lib/getChangedFileDependencies'
 
 describe('getChangedFileDependencies', () => {
     test('common JS module', () => {
-        const entryFilePath = 'test/CommonJs/test_file.ts'
+        const entryFilePath = 'testFiles/CommonJs/test_file.ts'
         const patch = '@@ -1,3 +1,6 @@\n' +
                 " import {dependency_1} from './dependency_1';\n" +
                 "+import {dependency_2} from './dependency_2';\n" +
@@ -14,7 +14,7 @@ describe('getChangedFileDependencies', () => {
                 ' \n' +
                 '-const workWithDependency = dependency_1\n' +
                 '+const workWithDependency = dependency_1 + dependency_2 + dependency_3 + dependency_4'
-        const dependencies = ['test/CommonJs/test_file.ts', "test/CommonJs/dependency_2.ts", "test/CommonJs/dependency_3.ts", "test/CommonJs/dependency_4.js"]
+        const dependencies = ['testFiles/CommonJs/test_file.ts', "testFiles/CommonJs/dependency_2.ts", "testFiles/CommonJs/dependency_3.ts", "testFiles/CommonJs/dependency_4.js"]
         const foundedDependencies = getChangedFileDependencies([{filename: entryFilePath, status: 'modified', patch }])
         expect(foundedDependencies[0]).toBe(dependencies[0])
         expect(foundedDependencies[1]).toBe(dependencies[1])

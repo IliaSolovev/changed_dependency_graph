@@ -1,6 +1,8 @@
 import nodePath from 'path'
+
 const fs = require('fs')
 import dependencyTree from '../../node-dependency-tree'
+
 const fileExtensions = ['.ts', '.tsx']
 
 interface IFile {
@@ -10,26 +12,30 @@ interface IFile {
 }
 
 const getChangedFileDependencies = (files: IFile[]) => {
-    const filesWithNecessaryExtensions = files.filter(({filename}) => fileExtensions.some((extension) => filename.endsWith(extension)))
+    const filesWithNecessaryExtensions = files
+        .filter(({filename}) => fileExtensions
+            .some((extension) => filename.endsWith(extension)))
 
     const filesPathForGraph = new Set();
     filesWithNecessaryExtensions.forEach((file) => {
         if (file.status === 'removed') return;
-
-        filesPathForGraph.add(file.filename)
-        const res = dependencyTree({
+        filesPathForGraph.add(nodePath.resolve(file.filename))
+        const dependecies = dependencyTree({
             filename: file.filename,
             directory: nodePath.dirname(file.filename)
-        });
-        console.log(res, 'using depTree')
+        }) as unknown as string[];
+        console.log(dependecies, 'using depTree')
         // find added files in PR
+        //TODO add ability to configure line ending
         file.patch.split('\n').forEach((line) => {
             // example
             // +import { useAgent } from 'hooks';",
             if (line.startsWith('+import')) {
                 const importFilepath = getImportedFilePath(file.filename, line)
-                if(importFilepath) {
-                    filesPathForGraph.add(normalize(importFilepath))
+                if (importFilepath) {
+                    const fileName = nodePath.basename(importFilepath)
+                    const absoluteFilePath = dependecies.find((dep) => dep.includes(fileName))
+                    filesPathForGraph.add(absoluteFilePath)
                 }
             }
         })
@@ -59,7 +65,7 @@ function readFileFromDir(dirName: string, filePattern: string) {
         const matchesPattern = file.match(filePattern);
         return isFile && matchesPattern;
     });
-    if(!matchedFile) {
+    if (!matchedFile) {
         return null
     }
     return nodePath.join(dirName, matchedFile);
