@@ -9,8 +9,7 @@ octokit.rest.pulls.listFiles({
     repo: 'changed_dependency_graph',
     pull_number: '2',
 } as any).then(({data}) => {
-    const command = getChangedFileDependencies(data)
-
+    const command = `madge --extensions ts --image graph.svg ${Array.from(getChangedFileDependencies(data)).join(' ')}`
     console.log(command)
     exec(command, (error, stdout, stderr) => {
         if (error) {

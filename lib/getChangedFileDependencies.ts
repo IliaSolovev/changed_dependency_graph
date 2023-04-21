@@ -29,7 +29,7 @@ const getChangedFileDependencies = (files: IFile[]) => {
             }
         })
     })
-    return `madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
+    return Array.from(filesPathForGraph)
 }
 
 function getImportedFilePath(mainFilePath, lineWithImport) {
