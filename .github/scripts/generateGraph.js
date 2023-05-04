@@ -1,7 +1,6 @@
 const {Octokit} = require("@octokit/rest");
-const nodePath = require('node:path');
-const fs = require('fs');
 const { exec } = require("child_process");
+const {getChangedFileDependencies} = require("../../lib/getChangedFileDependencies");
 
 // https://github.com/IliaSolovev/changed_dependency_graph/pull/1
 
@@ -16,8 +15,6 @@ const octokit = new Octokit({
 
 console.log(`Pull request number: ${pullRequestNumber}`);
 console.log(`Repository name: ${repoName}`);
-
-const fileExtensions = ['.ts', '.tsx']
 
 octokit.rest.pulls.listFiles({
     owner,
@@ -39,31 +36,3 @@ octokit.rest.pulls.listFiles({
     });
 });
 
-function getImportedFilePath(mainFilePath, lineWithImport) {
-    const match = lineWithImport.match(/import.*from\s*['"](.*)['"]/);
-
-    if (match) {
-        const importedPath = match[1];
-        const fileDirname = nodePath.dirname(nodePath.join(nodePath.dirname(mainFilePath), importedPath))
-
-        return readFileFromDir(fileDirname, removeRelativeSegments(importedPath))
-    }
-    return null;
-}
-
-const normalize = (path) => path.replace(/\\/g, '/')
-
-function readFileFromDir(dirName, filePattern) {
-    const files = fs.readdirSync(dirName);
-    const matchedFile = files.find(file => {
-        const filePath = nodePath.join(dirName, file);
-        const isFile = fs.statSync(filePath).isFile();
-        const matchesPattern = file.match(filePattern);
-        return isFile && matchesPattern;
-    });
-    return nodePath.join(dirName, matchedFile);
-}
-
-function removeRelativeSegments(filePath) {
-    return filePath.replace(/(\.|\/)\//g, '');
-}
