@@ -13,10 +13,13 @@ const getChangedFileDependencies = (files: IFile[]) => {
     const filesWithNecessaryExtensions = files
         .filter(({filename}) => fileExtensions
             .some((extension) => filename.endsWith(extension)))
-
     const filesPathForGraph = new Set();
     filesWithNecessaryExtensions.forEach((file) => {
         if (file.status === 'removed') return;
+        if (file.status === 'renamed') {
+            filesPathForGraph.add(normalize(nodePath.resolve(file.filename)))
+            return;
+        }
         filesPathForGraph.add(normalize(nodePath.resolve(file.filename)))
 
         const dependecies = dependencyTree({
