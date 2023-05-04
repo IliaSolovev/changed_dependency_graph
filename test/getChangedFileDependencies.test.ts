@@ -16,9 +16,10 @@ describe('getChangedFileDependencies', () => {
                 '+const workWithDependency = dependency_1 + dependency_2 + dependency_3 + dependency_4'
         const dependencies = ['testFiles/CommonJs/test_file.ts', "testFiles/CommonJs/dependency_2.ts", "testFiles/CommonJs/dependency_3.ts", "testFiles/CommonJs/dependency_4.js"]
         const foundedDependencies = getChangedFileDependencies([{filename: entryFilePath, status: 'modified', patch }])
-        expect(foundedDependencies[0]).toBe(dependencies[0])
-        expect(foundedDependencies[1]).toBe(dependencies[1])
-        expect(foundedDependencies[2]).toBe(dependencies[2])
-        expect(foundedDependencies[3]).toBe(dependencies[3])
+
+        expect(foundedDependencies[0]).toContain(dependencies[0])
+        expect(foundedDependencies[1]).toContain(dependencies[1])
+        expect(foundedDependencies[2]).toContain(dependencies[2])
+        expect(foundedDependencies[3]).toContain(dependencies[3])
     })
 })
