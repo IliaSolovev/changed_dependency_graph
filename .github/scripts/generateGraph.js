@@ -24,22 +24,7 @@ octokit.rest.pulls.listFiles({
     repo,
     pull_number: pullRequestNumber,
 }).then(({data}) => {
-    const filesWithNecessaryExtensions = data.filter(({filename}) => fileExtensions.some((extension) => filename.endsWith(extension)))
-    const filesPathForGraph = new Set();
-    filesWithNecessaryExtensions.forEach((file) => {
-        if (file.status === 'removed') return;
-
-        filesPathForGraph.add(file.filename)
-        // find added files in PR
-        file.patch.split('\n').forEach((line) => {
-            // example
-            // +import { useAgent } from 'hooks';",
-            if (line.startsWith('+import')) {
-                filesPathForGraph.add(normalize(getImportedFilePath(file.filename, line)))
-            }
-        })
-    })
-    const command = `npx madge --extensions ts --image graph.svg ${Array.from(filesPathForGraph).join(' ')}`
+    const command = `npx madge --extensions ts --image graph.svg ${Array.from(getChangedFileDependencies(data)).join(' ')}`
     console.log(command)
     exec(command, (error, stdout, stderr) => {
         if (error) {

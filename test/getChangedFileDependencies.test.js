@@ -1,6 +1,6 @@
 import {describe, expect, test} from '@jest/globals';
 
-const {getChangedFileDependencies} = require('../lib/getChangedFileDependencies');
+const {getChangedFileDependencies} = require('../lib/getChangedFileDependencies.js');
 
 
 describe('getChangedFileDependencies', () => {
