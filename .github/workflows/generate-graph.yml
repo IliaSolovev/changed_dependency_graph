@@ -15,9 +15,8 @@ jobs:
           echo "REPO_NAME=${{ github.repository }}" >> $GITHUB_ENV
           echo "ORG_NAME=${{ github.repository_owner }}" >> $GITHUB_ENV
           echo "PULL_REQUEST_NUMBER=${{ github.event.pull_request.number }}" >> $GITHUB_ENV
-      - name: Install madge
-        run: npm install madge
-
+      - name: Install packages
+        run: npm install
       - name: Run generateGraph.js
         run: node ./.github/scripts/generateGraph.js
         env:
